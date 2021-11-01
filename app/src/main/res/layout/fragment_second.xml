@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SecondFragment">
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/sivFragmentSecondBanner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_150sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            android:src="@drawable/image_placeholder"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </com.google.android.material.imageview.ShapeableImageView>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/sivFragmentSecondProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_baseline_account_circle_24"
+            app:layout_constraintStart_toStartOf="@+id/sivFragmentSecondBanner"
+            app:layout_constraintEnd_toEndOf="@+id/sivFragmentSecondBanner"
+            app:layout_constraintTop_toTopOf="@+id/sivFragmentSecondBanner"
+            android:background="@android:color/transparent"
+            app:layout_constraintCircle="@+id/sivFragmentSecondBanner"
+            app:layout_constraintCircleRadius="-100dp"
+            app:shapeAppearanceOverlay="@style/ShapeableImageview.Circle"/>
+
+
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/mtvSecondFragmentUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/sivFragmentSecondProfile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Nicholas Kampouris"
+        android:textSize="@dimen/_16ssp"
+        android:fontFamily="@font/roboto_medium"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:textColor="@android:color/black"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/mtvSecondFragmentLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_10sdp"
+        android:fontFamily="@font/roboto_regular"
+        android:drawablePadding="@dimen/_5sdp"
+        android:text="https://unsplash.com/@nicholaskampouris"
+        app:drawableStartCompat="@drawable/ic_baseline_language_24"
+        app:layout_constraintTop_toBottomOf="@+id/mtvSecondFragmentUserName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
