@@ -1,5 +1,6 @@
 package com.example.pinboardassignment.viewmodels
 
+import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,24 +15,32 @@ import kotlinx.coroutines.launch
 /**
  * @author: SundravelS
  *
- * @desc: Below View model is used to hold pin board response
+ * @desc: Below shared View model is used to hold pin board response
  */
 
-class PinBoardViewModel: ViewModel() {
+class PinBoardViewModel : ViewModel() {
 
     private val _arrPinBoardResponse = MutableLiveData<HandleResponse<PinBoardResponse>>()
     var arrPinBoardResponse: LiveData<HandleResponse<PinBoardResponse>> = _arrPinBoardResponse
 
 
+    val _bitmap = MutableLiveData<Bitmap>()
+    val bitmap: LiveData<Bitmap> = _bitmap
+
     //Exception handler to catch any exception thrown while calling API
     private val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        _arrPinBoardResponse.value = HandleResponse.parseResponse(null,tClass = PinBoardResponse::class.java)
+        _arrPinBoardResponse.value =
+            HandleResponse.parseResponse(null, tClass = PinBoardResponse::class.java)
     }
 
 
-    fun callAPI(sUrl:String){
+    fun callAPI(sUrl: String) {
         viewModelScope.launch(exceptionHandler) {
-            _arrPinBoardResponse.value = GenericRepository.genericRepositoryInstance.callAPI(sUrl=sUrl,tClass = PinBoardResponse::class.java,bJsonArray = true)
+            _arrPinBoardResponse.value = GenericRepository.genericRepositoryInstance.callAPI(
+                sUrl = sUrl,
+                tClass = PinBoardResponse::class.java,
+                bJsonArray = true
+            )
         }
     }
 

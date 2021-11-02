@@ -24,7 +24,7 @@ interface APICallInterface {
     suspend fun postRequest(@Url sUrl: String): Response<ResponseBody>
 
 
-    companion object{
+    companion object {
 
 
         const val sBaseUrl = "https://pastebin.com/"
@@ -36,9 +36,10 @@ interface APICallInterface {
             interceptor.level = HttpLoggingInterceptor.Level.BODY
             return OkHttpClient().newBuilder().addInterceptor(interceptor).build()
         }
+
         //getting instance of Retrofit
         fun getRetrofit(): Retrofit {
-            return  Retrofit.Builder().baseUrl(sBaseUrl).client(getClient()).build()
+            return Retrofit.Builder().baseUrl(sBaseUrl).client(getClient()).build()
         }
     }
 

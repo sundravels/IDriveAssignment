@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SecondFragment">
+    tools:context=".onboarding.ProfileFragment">
 
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -42,7 +42,7 @@
         app:layout_constraintTop_toBottomOf="@+id/sivFragmentSecondProfile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Nicholas Kampouris"
+        android:text=""
         android:textSize="@dimen/_16ssp"
         android:fontFamily="@font/roboto_medium"
         android:layout_marginTop="@dimen/_15sdp"
@@ -55,7 +55,7 @@
         android:padding="@dimen/_10sdp"
         android:fontFamily="@font/roboto_regular"
         android:drawablePadding="@dimen/_5sdp"
-        android:text="https://unsplash.com/@nicholaskampouris"
+        android:text=""
         app:drawableStartCompat="@drawable/ic_baseline_language_24"
         app:layout_constraintTop_toBottomOf="@+id/mtvSecondFragmentUserName"
         app:layout_constraintStart_toStartOf="parent"

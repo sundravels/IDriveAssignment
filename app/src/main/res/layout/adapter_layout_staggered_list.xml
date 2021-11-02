@@ -9,17 +9,17 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/sivAdapterLayoutStaggered"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:src="@drawable/image_placeholder"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/image_placeholder"
-            android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/ShapeableImageview.RoundedCorners" />
 
 
@@ -30,9 +30,9 @@
             android:drawablePadding="@dimen/_3sdp"
             android:fontFamily="@font/roboto_medium"
             android:gravity="center"
-            android:text="173 Likes"
-            android:paddingTop="@dimen/_5sdp"
             android:paddingHorizontal="@dimen/_5sdp"
+            android:paddingTop="@dimen/_5sdp"
+            android:text="173 Likes"
             android:textAlignment="center"
             android:textColor="@android:color/black"
             android:textSize="@dimen/_8ssp"
@@ -45,11 +45,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_medium"
+            android:maxLines="2"
             android:paddingHorizontal="@dimen/_5sdp"
             android:paddingTop="@dimen/_2sdp"
             android:paddingBottom="@dimen/_3sdp"
             android:text=""
-            android:maxLines="2"
             android:textColor="@android:color/black"
             android:textSize="@dimen/_10ssp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -62,7 +62,7 @@
             android:id="@+id/sivMore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/_5sdp"
+            android:layout_marginRight="@dimen/_5sdp"
             app:layout_constraintBottom_toBottomOf="@+id/mtvAdapterLayoutStaggeredTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/mtvAdapterLayoutStaggeredTitle"
