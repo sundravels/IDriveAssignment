@@ -59,52 +59,6 @@ class GenericRepository {
 
     }
 
-
-    /**
-     * @author: SundravelS on 31-10-2021
-     *
-     * @param sUrl:String
-     * @param model:PinBoardResponse
-     * @desc: Below Class download bitmap from server
-     *
-     */
-
-    fun downloadBitmap(sUrl: String, model: PinBoardResponse): Bitmap? {
-        LoggerClass.getLoggerClass().verbose(data = sUrl)
-        var urlConnection: HttpsURLConnection? = null
-        try {
-
-            val uri = URL(sUrl)
-            urlConnection = uri.openConnection() as HttpsURLConnection
-            LoggerClass.getLoggerClass().verbose("httpUrlconnection","${urlConnection}")
-
-            when {
-                model.status -> {
-                    urlConnection.disconnect()
-                    return null
-                }
-            }
-
-            val statusCode = urlConnection.responseCode
-            if (statusCode != HttpsURLConnection.HTTP_OK) {
-                return null
-            }
-            val inputStream = urlConnection.inputStream
-            if (inputStream != null) {
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                return bitmap
-            }
-        } catch (e: Exception) {
-            urlConnection?.disconnect()
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect()
-            }
-
-        }
-        return null
-    }
-
     companion object {
         val genericRepositoryInstance = GenericRepository()
     }

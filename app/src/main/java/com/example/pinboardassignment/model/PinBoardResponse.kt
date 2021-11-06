@@ -25,9 +25,7 @@ data class PinBoardResponse(
     @SerializedName("current_user_collections") val current_user_collections: ArrayList<String>,
     @SerializedName("urls") val urls: Urls,
     @SerializedName("categories") val categories: ArrayList<Categories>,
-    @SerializedName("links") val links: Links,
-    var status: Boolean = false
-
+    @SerializedName("links") val links: Links
 )
 
 data class Categories(
@@ -46,7 +44,6 @@ data class Links(
 )
 
 data class Profile_image(
-
     @SerializedName("small") val small: String,
     @SerializedName("medium") val medium: String,
     @SerializedName("large") val large: String

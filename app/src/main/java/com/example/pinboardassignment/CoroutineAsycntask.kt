@@ -32,7 +32,7 @@ abstract class CoroutineAsynctask<Params, Progress, Result> {
                 //job.cancel("")
                 LoggerClass.getLoggerClass().verbose(data = "${throwable}")
 
-               // job.cancel(it)
+                // job.cancel(it)
                 onCancelled(it)
             }
 
@@ -47,40 +47,48 @@ abstract class CoroutineAsynctask<Params, Progress, Result> {
     }
 
     @MainThread
-    open fun onPreExecute() {
+    open fun onPreExecute(model: PinBoardResponse,job:CoroutineScope) {
     }
 
     open fun onCancelled(sErrorMessage: String) {}
 
 
     //launch task
-    fun execute(vararg params: Params,model:PinBoardResponse) {
-        LoggerClass.getLoggerClass().verbose(data = "execute")
-        LoggerClass.getLoggerClass().verbose("mapid",data = "${model}")
+    fun execute(vararg params: Params, model: PinBoardResponse) {
+        LoggerClass.getLoggerClass().verbose(data = "TAGexecute")
+        LoggerClass.getLoggerClass().verbose("TAGmapid", data = "${model}")
 
-        if(!job.isActive){
+        if (!job.isActive) {
             job = CoroutineScope(Dispatchers.Main)
         }
 
-        launch(params)
+        launch(params,model,job)
     }
 
     //cancel task
-    fun cancelDownload() {
-        //if job is active cancel it
-        when (job.isActive) {
-            true -> {
-                job.cancel()
-                onCancelled("")
+    fun cancelDownload(model: PinBoardResponse,job: CoroutineScope) {
+
+        LoggerClass.getLoggerClass().verbose(sTAG = "TAGjobIdOutside","${ job}")
+
+
+        job?.let {
+            LoggerClass.getLoggerClass().verbose(sTAG = "TAGjobIdCancel","${it}")
+            //if job is active cancel it
+            when (it.isActive) {
+                true -> {
+                    job.cancel()
+                    onCancelled("")
+                }
             }
         }
+
+
     }
 
 
-    private fun launch(params: Array<out Params>) {
-
-        job?.launch(coroutineExceptionHandler) {
-            onPreExecute()
+    private fun launch(params: Array<out Params>, model: PinBoardResponse,job: CoroutineScope) {
+        job.launch(coroutineExceptionHandler) {
+            onPreExecute(model,job)
             withContext(Dispatchers.IO) {
                 val result = doInBackground(*params)
                 withContext(Dispatchers.Main) {
@@ -95,7 +103,6 @@ abstract class CoroutineAsynctask<Params, Progress, Result> {
         }
 
     }
-
 
 
 }

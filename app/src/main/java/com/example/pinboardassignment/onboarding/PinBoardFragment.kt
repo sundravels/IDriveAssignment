@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -27,7 +26,9 @@ import com.example.pinboardassignment.utils.LoggerClass
 import com.example.pinboardassignment.viewmodels.PinBoardViewModel
 import com.imagepreviewer.idriveassignment.CoroutineAsynctask
 import kotlinx.android.synthetic.main.adapter_layout_staggered_list.view.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -47,6 +48,8 @@ class PinBoardFragment : BaseFragment() {
 
     lateinit var asyncTask: CoroutineAsynctask<String, String, Bitmap>
 
+    //Below hashmap is used to maintain all the job, to cancel and start job.
+    private val hashMapJobs = HashMap<String,CoroutineScope>()
 
     //recycler view adapter
     private val pinBoardAdapter = object : GenericAdapter<PinBoardResponse>(arrayPinBoardResponse) {
@@ -72,11 +75,12 @@ class PinBoardFragment : BaseFragment() {
 
                 override fun onCancelled(sErrorMessage: String) {
                     super.onCancelled(sErrorMessage)
-                    LoggerClass.getLoggerClass().verbose(sTAG = "onCancelled",data = "${model.id}")
+                    LoggerClass.getLoggerClass().verbose(sTAG = "onCancelled", data = "${model.id}")
                 }
 
                 override fun onPostExecute(result: Bitmap?) {
-                    LoggerClass.getLoggerClass().verbose(sTAG = "onPreExecute=${model.id}","${result}")
+                    LoggerClass.getLoggerClass()
+                        .verbose(sTAG = "onPostExecute=${model.id}", "${result}")
                     cache.put(model.id, result)
                     AppUtils.populateGlide(
                         requireActivity(),//pinBoardResponse.idJob =
@@ -86,18 +90,25 @@ class PinBoardFragment : BaseFragment() {
                     super.onPostExecute(result)
                 }
 
+
+                override fun onPreExecute(model: PinBoardResponse, job: CoroutineScope) {
+                    //Added job to hashmaps
+                    hashMapJobs.put(model.id,job)
+                    super.onPreExecute(model, job)
+                }
+
             }
 
-            when{
+            when {
                 cache.get(model.id) != null -> {
                     AppUtils.populateGlide(
-                        requireActivity(),//pinBoardResponse.idJob =
+                        requireActivity(),
                         bitmap = cache.get(model.id),
                         holder.itemView.sivAdapterLayoutStaggered
                     )
                 }
-                else ->{
-                    asyncTask.execute(model.urls.raw,model = model)
+                else -> {
+                    asyncTask.execute(model.urls.raw, model = model)
                     AppUtils.populateGlide(
                         requireActivity(),//pinBoardResponse.idJob =
                         bitmap = cache.get(model.id),
@@ -127,21 +138,23 @@ class PinBoardFragment : BaseFragment() {
                 popup.inflate(R.menu.menu_main)
 
                 popup.menu.getItem(0).title =
-                    when (arrayPinBoardResponse.get(holder.adapterPosition).status) {
-                        true -> requireActivity().resources.getString(R.string.start_download)
-                        false -> requireActivity().resources.getString(R.string.cancel_download)
+                    when (hashMapJobs.get(model.id)?.isActive) {
+                        true -> requireActivity().resources.getString(R.string.cancel_download)
+                        else -> requireActivity().resources.getString(R.string.start_download)
                     }
 
                 //adding click listener for pop up menu
                 popup.setOnMenuItemClickListener { item ->
                     when (item?.getItemId()) {
                         R.id.action_settings -> {
-                            arrayPinBoardResponse[holder.adapterPosition].status =
-                                when (arrayPinBoardResponse.get(holder.adapterPosition).status) {
-                                    true -> false
-                                    false -> true
-                                }
-                            notifyItemChanged(holder.adapterPosition)
+                            LoggerClass.getLoggerClass().verbose("onclicked","${hashMapJobs}")
+                            when(hashMapJobs.get(model.id)?.isActive){
+                                true -> asyncTask.cancelDownload(model = model,job = hashMapJobs.get(model.id)?: CoroutineScope(
+                                    Job()
+                                ))
+                                else -> asyncTask.execute(model.urls.raw,model = model)
+                            }
+
                             true
                         }
                         else -> false
@@ -198,14 +211,6 @@ class PinBoardFragment : BaseFragment() {
         })
 
 
-        binding.buttonFirst.setOnClickListener {
-           // asyncTask.execute("https://images.unsplash.com/photo-1464550883968-cec281c19761")
-        }
-
-        binding.buttonCancel.setOnClickListener {
-           // asyncTask.cancelDownload(model.idJob)
-        }
-
         //swipe to refresh listener
         binding.srlSwipeToRefresh.setOnRefreshListener {
             LoggerClass.getLoggerClass().verbose(data = "${cache}")
@@ -215,9 +220,6 @@ class PinBoardFragment : BaseFragment() {
         pinBoardResponse.callAPI(APICallInterface.sPinBoardResponseUrl)
 
     }
-
-
-
 
 
 }
