@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.example.pinboardassignment.model.PinBoardResponse
 import com.example.pinboardassignment.utils.LoggerClass
+import okhttp3.ResponseBody
 import java.lang.Exception
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
@@ -35,8 +36,29 @@ class GenericRepository {
 
         }
 
+    }
+
+    suspend fun  downloadFile(
+        sUrl: String,
+        bPostOrGET: Boolean = false,
+    ): Bitmap? {
+        return try {
+            val service = APICallInterface.getRetrofit().create(APICallInterface::class.java)
+            val response = when (bPostOrGET) {
+                true -> service.postRequest(sUrl)
+                else -> service.getResponse(sUrl)
+            }
+
+            val inputStream = response.body()?.byteStream()
+            return BitmapFactory.decodeStream(inputStream)
+
+
+        } catch (e: Exception) {
+            null
+        }
 
     }
+
 
     /**
      * @author: SundravelS on 31-10-2021
@@ -54,25 +76,22 @@ class GenericRepository {
 
             val uri = URL(sUrl)
             urlConnection = uri.openConnection() as HttpsURLConnection
-
+            LoggerClass.getLoggerClass().verbose("httpUrlconnection","${urlConnection}")
 
             when {
                 model.status -> {
                     urlConnection.disconnect()
                     return null
                 }
-
             }
-            val statusCode = urlConnection.responseCode
 
+            val statusCode = urlConnection.responseCode
             if (statusCode != HttpsURLConnection.HTTP_OK) {
                 return null
             }
             val inputStream = urlConnection.inputStream
             if (inputStream != null) {
-
                 val bitmap = BitmapFactory.decodeStream(inputStream)
-
                 return bitmap
             }
         } catch (e: Exception) {
@@ -83,7 +102,6 @@ class GenericRepository {
             }
 
         }
-
         return null
     }
 

@@ -70,14 +70,11 @@ class ProfileFragment : BaseFragment() {
         //observer for getting bitmap from firt fragment
         pinBoardViewModel.bitmap.observe(viewLifecycleOwner, {
 
-            if (it != null) {
                 AppUtils.populateGlide(
                     requireActivity(),
                     it,
                     binding.sivFragmentSecondBanner
                 )
-            }
-
 
         })
 

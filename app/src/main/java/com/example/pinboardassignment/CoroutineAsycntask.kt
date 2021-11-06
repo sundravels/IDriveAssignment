@@ -2,6 +2,7 @@ package com.imagepreviewer.idriveassignment
 
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
+import com.example.pinboardassignment.model.PinBoardResponse
 import com.example.pinboardassignment.utils.AppUtils
 import com.example.pinboardassignment.utils.LoggerClass
 
@@ -15,7 +16,7 @@ import kotlinx.coroutines.*
  */
 abstract class CoroutineAsynctask<Params, Progress, Result> {
 
-    private var job = CoroutineScope(Dispatchers.Main)
+    private var job = CoroutineScope(Job() + Dispatchers.Main)
 
 
     /**
@@ -27,38 +28,45 @@ abstract class CoroutineAsynctask<Params, Progress, Result> {
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
             throwable.localizedMessage?.toString()?.let {
-                job.cancel(it)
+
+                //job.cancel("")
+                LoggerClass.getLoggerClass().verbose(data = "${throwable}")
+
+               // job.cancel(it)
                 onCancelled(it)
             }
 
         }
 
     @WorkerThread
-    abstract fun doInBackground(vararg params: Params): Result?
+    abstract suspend fun doInBackground(vararg params: Params): Result?
 
 
     @MainThread
-    open fun onPostExecute(result: Result?) {}
+    open fun onPostExecute(result: Result?) {
+    }
 
     @MainThread
-    open fun onPreExecute() {}
+    open fun onPreExecute() {
+    }
+
     open fun onCancelled(sErrorMessage: String) {}
 
 
     //launch task
-    fun execute(vararg params: Params) {
+    fun execute(vararg params: Params,model:PinBoardResponse) {
         LoggerClass.getLoggerClass().verbose(data = "execute")
-        //if job is inactive, then start gain
-        if (!job.isActive) {
+        LoggerClass.getLoggerClass().verbose("mapid",data = "${model}")
+
+        if(!job.isActive){
             job = CoroutineScope(Dispatchers.Main)
         }
+
         launch(params)
     }
 
     //cancel task
     fun cancelDownload() {
-        LoggerClass.getLoggerClass().verbose(data = "cancelDownload")
-
         //if job is active cancel it
         when (job.isActive) {
             true -> {
@@ -70,19 +78,24 @@ abstract class CoroutineAsynctask<Params, Progress, Result> {
 
 
     private fun launch(params: Array<out Params>) {
-        job.launch(coroutineExceptionHandler) {
+
+        job?.launch(coroutineExceptionHandler) {
             onPreExecute()
             withContext(Dispatchers.IO) {
                 val result = doInBackground(*params)
-
                 withContext(Dispatchers.Main) {
                     if (result != null) {
                         onPostExecute(result)
-                    } else onCancelled(AppUtils.sErrorMessage)
+                    } else {
+                        job.cancel("")
+                        onCancelled(AppUtils.sErrorMessage)
+                    }
                 }
             }
         }
+
     }
+
 
 
 }

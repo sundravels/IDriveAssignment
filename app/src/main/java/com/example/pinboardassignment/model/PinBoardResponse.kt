@@ -1,7 +1,10 @@
 package com.example.pinboardassignment.model
 
 import android.graphics.Bitmap
+import com.example.pinboardassignment.utils.AppUtils
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 /**
  * @author: SundravelS
@@ -23,8 +26,8 @@ data class PinBoardResponse(
     @SerializedName("urls") val urls: Urls,
     @SerializedName("categories") val categories: ArrayList<Categories>,
     @SerializedName("links") val links: Links,
-    val bitmap: Bitmap? = null,
     var status: Boolean = false
+
 )
 
 data class Categories(

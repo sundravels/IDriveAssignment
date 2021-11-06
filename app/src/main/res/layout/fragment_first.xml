@@ -15,6 +15,7 @@
         android:id="@+id/rvFragmentFirst"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,7 +39,7 @@
         app:layout_constraintTop_toTopOf="@+id/textview_first"
         app:layout_constraintBottom_toBottomOf="@+id/textview_first"
         app:layout_constraintEnd_toEndOf="@+id/textview_first"/>
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/textview_first"
         android:layout_width="@dimen/_100sdp"
         android:layout_height="@dimen/_100sdp"

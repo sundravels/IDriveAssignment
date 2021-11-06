@@ -8,6 +8,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.pinboardassignment.R
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import org.json.JSONArray
 
 
@@ -22,6 +25,7 @@ object AppUtils {
 
 
     const val sErrorMessage = "Error Occurred"
+     val jobId = CoroutineScope(Job()+ Dispatchers.Main)
 
     /**
      * @author: SundravelS on 31-10-2021
@@ -56,13 +60,14 @@ object AppUtils {
      *
      */
 
-    fun populateGlide(context: Context, bitmap: Bitmap, view: ShapeableImageView) {
-        Glide.with(context).asBitmap().load(bitmap)
-            .diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true)
+    fun populateGlide(context: Context, bitmap: Bitmap?, view: ShapeableImageView) {
+        Glide.with(context).asBitmap().load(when(bitmap){
+            null -> R.drawable.image_placeholder
+            else -> bitmap
+        }).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true)
             .placeholder(R.drawable.image_placeholder)
             .error(R.drawable.image_placeholder)
             .into(view)
-
     }
 
     /**

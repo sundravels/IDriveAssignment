@@ -27,6 +27,7 @@ import com.example.pinboardassignment.utils.LoggerClass
 import com.example.pinboardassignment.viewmodels.PinBoardViewModel
 import com.imagepreviewer.idriveassignment.CoroutineAsynctask
 import kotlinx.android.synthetic.main.adapter_layout_staggered_list.view.*
+import kotlinx.coroutines.*
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -62,59 +63,57 @@ class PinBoardFragment : BaseFragment() {
         override fun bindBindViewHolder(holder: RecyclerView.ViewHolder, model: PinBoardResponse) {
             asyncTask = object : CoroutineAsynctask<String, String, Bitmap>() {
 
-                override fun doInBackground(vararg params: String): Bitmap? {
-
-                    val bitmap = when {
-                        cache.get(model.id) != null -> cache.get(model.id)
-                        else -> GenericRepository.genericRepositoryInstance.downloadBitmap(
-                            params[0],
-                            model
-                        )
-                    }
-
-                    cache.put(model.id, bitmap)
+                override suspend fun doInBackground(vararg params: String): Bitmap? {
+                    var bitmap: Bitmap? = GenericRepository.genericRepositoryInstance.downloadFile(
+                        params[0],
+                    )
                     return bitmap
-
                 }
 
                 override fun onCancelled(sErrorMessage: String) {
                     super.onCancelled(sErrorMessage)
-                    LoggerClass.getLoggerClass().verbose(data = sErrorMessage)
+                    LoggerClass.getLoggerClass().verbose(sTAG = "onCancelled",data = "${model.id}")
                 }
 
                 override fun onPostExecute(result: Bitmap?) {
+                    LoggerClass.getLoggerClass().verbose(sTAG = "onPreExecute=${model.id}","${result}")
+                    cache.put(model.id, result)
+                    AppUtils.populateGlide(
+                        requireActivity(),//pinBoardResponse.idJob =
+                        bitmap = result,
+                        holder.itemView.sivAdapterLayoutStaggered
+                    )
                     super.onPostExecute(result)
-                    result?.let {
-                        AppUtils.populateGlide(
-                            requireActivity(),
-                            bitmap = it,
-                            holder.itemView.sivAdapterLayoutStaggered
-                        )
-                    }
-                    holder.itemView.mtvAdapterLayoutStaggeredTitle.text = model.user.name
-                    holder.itemView.mtvAdapterLayoutStaggeredLikes.text =
-                        requireActivity().resources.getString(
-                            R.string.like_string,
-                            model.likes.toString()
-                        )
                 }
+
             }
 
-            when {
-                !model.status -> asyncTask.execute(model.urls.raw)
-                else -> {
-                    asyncTask.cancelDownload()
-                    holder.itemView.sivAdapterLayoutStaggered.setImageDrawable(
-                        ContextCompat.getDrawable(
-                            requireActivity(),
-                            R.drawable.image_placeholder
-                        )
+            when{
+                cache.get(model.id) != null -> {
+                    AppUtils.populateGlide(
+                        requireActivity(),//pinBoardResponse.idJob =
+                        bitmap = cache.get(model.id),
+                        holder.itemView.sivAdapterLayoutStaggered
+                    )
+                }
+                else ->{
+                    asyncTask.execute(model.urls.raw,model = model)
+                    AppUtils.populateGlide(
+                        requireActivity(),//pinBoardResponse.idJob =
+                        bitmap = cache.get(model.id),
+                        holder.itemView.sivAdapterLayoutStaggered
                     )
                 }
             }
 
-            holder.itemView.setOnClickListener {
+            holder.itemView.mtvAdapterLayoutStaggeredTitle.text = model.user.name
+            holder.itemView.mtvAdapterLayoutStaggeredLikes.text =
+                requireActivity().resources.getString(
+                    R.string.like_string,
+                    model.likes.toString()
+                )
 
+            holder.itemView.setOnClickListener {
                 val bundle = Bundle()
                 bundle.putString("id", model.id)
                 pinBoardResponse._bitmap.value = cache.get(model.id)
@@ -158,6 +157,7 @@ class PinBoardFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cache = BitmapsCache(AppUtils.getMaxSize(context = requireContext()))
+
     }
 
     override fun onCreateView(
@@ -198,6 +198,14 @@ class PinBoardFragment : BaseFragment() {
         })
 
 
+        binding.buttonFirst.setOnClickListener {
+           // asyncTask.execute("https://images.unsplash.com/photo-1464550883968-cec281c19761")
+        }
+
+        binding.buttonCancel.setOnClickListener {
+           // asyncTask.cancelDownload(model.idJob)
+        }
+
         //swipe to refresh listener
         binding.srlSwipeToRefresh.setOnRefreshListener {
             LoggerClass.getLoggerClass().verbose(data = "${cache}")
@@ -207,6 +215,9 @@ class PinBoardFragment : BaseFragment() {
         pinBoardResponse.callAPI(APICallInterface.sPinBoardResponseUrl)
 
     }
+
+
+
 
 
 }
