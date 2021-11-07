@@ -56,7 +56,7 @@ class ProfileFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //observer for pin board response
-        pinBoardViewModel.arrPinBoardResponse.observe(viewLifecycleOwner, Observer {
+        pinBoardViewModel.arrPinBoardResponse.observe(viewLifecycleOwner, {
             when (it) {
                 is JsonArrayResponse -> {
                     pinBoardResponse = it.data.find { it.id.equals(sUserId, false) }!!
@@ -70,11 +70,11 @@ class ProfileFragment : BaseFragment() {
         //observer for getting bitmap from firt fragment
         pinBoardViewModel.bitmap.observe(viewLifecycleOwner, {
 
-                AppUtils.populateGlide(
-                    requireActivity(),
-                    it,
-                    binding.sivFragmentSecondBanner
-                )
+            AppUtils.populateGlide(
+                requireActivity(),
+                it,
+                binding.sivFragmentSecondBanner
+            )
 
         })
 

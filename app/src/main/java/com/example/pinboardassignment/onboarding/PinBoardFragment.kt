@@ -24,6 +24,7 @@ import com.example.pinboardassignment.network.JsonArrayResponse
 import com.example.pinboardassignment.utils.AppUtils
 import com.example.pinboardassignment.utils.LoggerClass
 import com.example.pinboardassignment.viewmodels.PinBoardViewModel
+import com.google.android.material.imageview.ShapeableImageView
 import com.imagepreviewer.idriveassignment.CoroutineAsynctask
 import kotlinx.android.synthetic.main.adapter_layout_staggered_list.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +50,7 @@ class PinBoardFragment : BaseFragment() {
     lateinit var asyncTask: CoroutineAsynctask<String, String, Bitmap>
 
     //Below hashmap is used to maintain all the job, to cancel and start job.
-    private val hashMapJobs = HashMap<String,CoroutineScope>()
+    private val hashMapJobs = HashMap<String, CoroutineScope>()
 
     //recycler view adapter
     private val pinBoardAdapter = object : GenericAdapter<PinBoardResponse>(arrayPinBoardResponse) {
@@ -75,25 +76,25 @@ class PinBoardFragment : BaseFragment() {
 
                 override fun onCancelled(sErrorMessage: String) {
                     super.onCancelled(sErrorMessage)
-                    LoggerClass.getLoggerClass().verbose(sTAG = "onCancelled", data = "${model.id}")
+                    LoggerClass.getLoggerClass().verbose(sTAG = "onCancelled", data = model.id)
                 }
 
-                override fun onPostExecute(result: Bitmap?) {
+                override fun onPostExecute(result: Bitmap?, view: ShapeableImageView) {
                     LoggerClass.getLoggerClass()
                         .verbose(sTAG = "onPostExecute=${model.id}", "${result}")
                     cache.put(model.id, result)
                     AppUtils.populateGlide(
                         requireActivity(),//pinBoardResponse.idJob =
                         bitmap = result,
-                        holder.itemView.sivAdapterLayoutStaggered
+                        view
                     )
-                    super.onPostExecute(result)
+                    super.onPostExecute(result, view)
                 }
 
 
                 override fun onPreExecute(model: PinBoardResponse, job: CoroutineScope) {
                     //Added job to hashmaps
-                    hashMapJobs.put(model.id,job)
+                    hashMapJobs.put(model.id, job)
                     super.onPreExecute(model, job)
                 }
 
@@ -108,10 +109,14 @@ class PinBoardFragment : BaseFragment() {
                     )
                 }
                 else -> {
-                    asyncTask.execute(model.urls.raw, model = model)
+                    asyncTask.execute(
+                        model.urls.raw,
+                        model = model,
+                        shapeableImageView = holder.itemView.sivAdapterLayoutStaggered
+                    )
                     AppUtils.populateGlide(
                         requireActivity(),//pinBoardResponse.idJob =
-                        bitmap = cache.get(model.id),
+                        bitmap = null,
                         holder.itemView.sivAdapterLayoutStaggered
                     )
                 }
@@ -147,12 +152,20 @@ class PinBoardFragment : BaseFragment() {
                 popup.setOnMenuItemClickListener { item ->
                     when (item?.getItemId()) {
                         R.id.action_settings -> {
-                            LoggerClass.getLoggerClass().verbose("onclicked","${hashMapJobs}")
-                            when(hashMapJobs.get(model.id)?.isActive){
-                                true -> asyncTask.cancelDownload(model = model,job = hashMapJobs.get(model.id)?: CoroutineScope(
-                                    Job()
-                                ))
-                                else -> asyncTask.execute(model.urls.raw,model = model)
+                            LoggerClass.getLoggerClass().verbose("onclicked", "${hashMapJobs}")
+
+                            when (hashMapJobs.get(model.id)?.isActive) {
+                                true -> asyncTask.cancelDownload(
+                                    job = hashMapJobs.get(model.id) ?: CoroutineScope(
+                                        Job()
+                                    )
+                                )
+
+                                else -> asyncTask.execute(
+                                    model.urls.raw,
+                                    model = model,
+                                    shapeableImageView = holder.itemView.sivAdapterLayoutStaggered
+                                )
                             }
 
                             true
@@ -164,6 +177,7 @@ class PinBoardFragment : BaseFragment() {
                 popup.show()
             }
         }
+
 
     }
 
@@ -198,15 +212,18 @@ class PinBoardFragment : BaseFragment() {
 
 
         pinBoardResponse.arrPinBoardResponse.observe(viewLifecycleOwner, {
+            binding.srlSwipeToRefresh.isRefreshing = false
             when (it) {
                 is JsonArrayResponse -> {
-                    binding.srlSwipeToRefresh.isRefreshing = false
                     arrayPinBoardResponse.clear()
                     arrayPinBoardResponse.addAll(it.data)
                     pinBoardAdapter.notifyDataSetChanged()
+                    pinBoardAdapter.setHasStableIds(true)
                     LoggerClass.getLoggerClass().verbose(data = it.data)
                 }
-                is ErrorResponse -> LoggerClass.getLoggerClass().verbose(data = it.sData)
+                is ErrorResponse -> {
+                    LoggerClass.getLoggerClass().verbose(data = it.sData)
+                }
             }
         })
 

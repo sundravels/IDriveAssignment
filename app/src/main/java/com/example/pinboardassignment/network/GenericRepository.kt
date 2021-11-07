@@ -2,12 +2,6 @@ package com.example.pinboardassignment.network
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.example.pinboardassignment.model.PinBoardResponse
-import com.example.pinboardassignment.utils.LoggerClass
-import okhttp3.ResponseBody
-import java.lang.Exception
-import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 
 
 /**
@@ -38,7 +32,8 @@ class GenericRepository {
 
     }
 
-    suspend fun  downloadFile(
+    //download files
+    suspend fun downloadFile(
         sUrl: String,
         bPostOrGET: Boolean = false,
     ): Bitmap? {

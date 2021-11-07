@@ -5,6 +5,7 @@ import androidx.annotation.WorkerThread
 import com.example.pinboardassignment.model.PinBoardResponse
 import com.example.pinboardassignment.utils.AppUtils
 import com.example.pinboardassignment.utils.LoggerClass
+import com.google.android.material.imageview.ShapeableImageView
 
 import kotlinx.coroutines.*
 
@@ -43,36 +44,33 @@ abstract class CoroutineAsynctask<Params, Progress, Result> {
 
 
     @MainThread
-    open fun onPostExecute(result: Result?) {
+    open fun onPostExecute(result: Result?, view: ShapeableImageView) {
     }
 
     @MainThread
-    open fun onPreExecute(model: PinBoardResponse,job:CoroutineScope) {
+    open fun onPreExecute(model: PinBoardResponse, job: CoroutineScope) {
     }
 
     open fun onCancelled(sErrorMessage: String) {}
 
 
     //launch task
-    fun execute(vararg params: Params, model: PinBoardResponse) {
-        LoggerClass.getLoggerClass().verbose(data = "TAGexecute")
-        LoggerClass.getLoggerClass().verbose("TAGmapid", data = "${model}")
-
+    fun execute(
+        vararg params: Params,
+        model: PinBoardResponse,
+        shapeableImageView: ShapeableImageView
+    ) {
         if (!job.isActive) {
             job = CoroutineScope(Dispatchers.Main)
         }
 
-        launch(params,model,job)
+        launch(params, model, job, shapeableImageView)
     }
 
     //cancel task
-    fun cancelDownload(model: PinBoardResponse,job: CoroutineScope) {
+    fun cancelDownload(job: CoroutineScope) {
 
-        LoggerClass.getLoggerClass().verbose(sTAG = "TAGjobIdOutside","${ job}")
-
-
-        job?.let {
-            LoggerClass.getLoggerClass().verbose(sTAG = "TAGjobIdCancel","${it}")
+        job.let {
             //if job is active cancel it
             when (it.isActive) {
                 true -> {
@@ -86,14 +84,19 @@ abstract class CoroutineAsynctask<Params, Progress, Result> {
     }
 
 
-    private fun launch(params: Array<out Params>, model: PinBoardResponse,job: CoroutineScope) {
+    private fun launch(
+        params: Array<out Params>,
+        model: PinBoardResponse,
+        job: CoroutineScope,
+        shapeableImageView: ShapeableImageView
+    ) {
         job.launch(coroutineExceptionHandler) {
-            onPreExecute(model,job)
+            onPreExecute(model, job)
             withContext(Dispatchers.IO) {
                 val result = doInBackground(*params)
                 withContext(Dispatchers.Main) {
                     if (result != null) {
-                        onPostExecute(result)
+                        onPostExecute(result, shapeableImageView)
                     } else {
                         job.cancel("")
                         onCancelled(AppUtils.sErrorMessage)

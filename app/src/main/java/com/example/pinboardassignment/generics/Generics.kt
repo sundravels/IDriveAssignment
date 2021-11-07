@@ -3,6 +3,7 @@ package com.example.pinboardassignment.generics
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pinboardassignment.utils.LoggerClass
 
 
 /**
@@ -28,9 +29,13 @@ abstract class GenericAdapter<T>(val arrayList: ArrayList<T>) :
         bindBindViewHolder(holder, arrayList.get(position))
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
     override fun getItemCount(): Int {
         return arrayList.size
     }
+
 }
 
 /**
